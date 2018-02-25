@@ -1,0 +1,72 @@
+buildscript {
+    ext.kotlin_version = '1.2.21'
+    ext.dokka_version = '0.9.15'
+
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.10.RELEASE")
+        classpath "org.jetbrains.kotlin:kotlin-allopen:$kotlin_version"
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${dokka_version}"
+    }
+}
+
+group 'org.pixelndice.table.pixelsite'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'kotlin'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'org.jetbrains.dokka'
+apply plugin: 'kotlin-spring' // instead of "kotlin-allopen'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    compile("org.springframework.boot:spring-boot-starter-parent:1.5.10.RELEASE")
+    compile("org.springframework.boot:spring-boot-starter-web:1.5.10.RELEASE")
+    compile("org.springframework.boot:spring-boot-starter-security:1.5.10.RELEASE")
+    compile("org.springframework.boot:spring-boot-starter-thymeleaf:1.5.10.RELEASE")
+    compile("org.thymeleaf.extras:thymeleaf-extras-springsecurity4:3.0.2.RELEASE")
+    compile("org.springframework.boot:spring-boot-starter-test:1.5.10.RELEASE")
+    compile("org.springframework.boot:spring-boot-starter-data-jpa:1.5.10.RELEASE")
+    compile("org.postgresql:postgresql:42.2.1")
+    compile("org.webjars.npm:purecss:1.0.0")
+    compile("commons-beanutils:commons-beanutils:1.9.3")
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.javaParameters = true
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.javaParameters = true
+}
+
+//create a single Jar with all dependencies
+jar{
+    manifest {
+        attributes('Implementation-Title': project.name,
+                'Implementation-Version': version,
+                'Built-Date': new Date(),
+                'Main-Class': 'org.pixelndice.table.pixelsite.Application'
+        )
+    }
+
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+}
+
+dokka {
+    outputFormat = 'html'
+    outputDirectory = "$buildDir/javadoc"
+}
